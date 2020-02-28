@@ -1,0 +1,17 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+elasticsearch = "~=6.0"
+pyarango = ">=1.3.3"
+
+[dev-packages]
+mypy = "~=0.761"
+flake8 = ">=3.7.9"
+ipython = ">=7.7.0"
+ipdb = ">=0.12.2"
+
+[requires]
+python_version = "3.8"

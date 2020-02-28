@@ -1,0 +1,14 @@
+version: '3.7'
+services:
+  arangodb:
+    image: arangodb:latest
+    env_file: .env
+    ports:
+      - 127.0.0.1:8529:8529
+    volumes:
+      - arangodb_data:/var/lib/arangodb
+  migrate:
+    build: .
+    env_file: .env
+volumes:
+  arangodb_data:
