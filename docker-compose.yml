@@ -4,11 +4,25 @@ services:
     image: arangodb:latest
     env_file: .env
     ports:
-      - 127.0.0.1:8529:8529
+      - 8529:8529
     volumes:
       - arangodb_data:/var/lib/arangodb
+  es:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.0
+    environment:
+      - cluster.name=atlas_api-cluster
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
   migrate:
     build: .
     env_file: .env
 volumes:
   arangodb_data:
+  esdata:

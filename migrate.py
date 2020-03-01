@@ -1,3 +1,5 @@
+import logging
+
 from pyArango.connection import Connection
 from elasticsearch import Elasticsearch
 from settings import ES_HOST, ES_INDEX, ARANGO_ROOT_PASSWORD, ARANGO_USERNAME, ARANGO_COLLECTION, ARANGO_URL
@@ -29,6 +31,7 @@ def main():
     for hit in res['hits']['hits']:
         hit['_file'] = hit['_id']
         db.AQLQuery(aql_query_insert, bindVars={'doc': hit})
+        logging.info(f"Added: {hit['_file']}")
 
 
 if __name__ == '__main__':

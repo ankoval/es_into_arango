@@ -4,9 +4,6 @@ ENV PYTHONUSERBASE /var/python/dist
 # ARG GIT_PAT
 
 RUN apt-get update \
-    && apt-get -y install --no-install-recommends gcc build-essential curl apt-utils dialog 2>&1 \
-    # Verify git, process tools, lsb-release (common in install instructions for CLIs) installed
-    && apt-get -y install git iproute2 procps lsb-release \
     && pip install --upgrade pip \
     && pip install pipenv \
     # Clean up
@@ -25,4 +22,4 @@ RUN PIP_USER=1 pipenv install --system --deploy --ignore-pipfile
 
 FROM builder AS production
 
-CMD ["python"]
+CMD ["python", "migrate.py"]
