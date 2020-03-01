@@ -1,17 +1,18 @@
 from pyArango.connection import Connection
 from elasticsearch import Elasticsearch
-from settings import ES_HOST, ES_INDEX, ARANGO_ROOT_PASSWORD, ARANGO_USERNAME, ARANGO_COLLECTION
+from settings import ES_HOST, ES_INDEX, ARANGO_ROOT_PASSWORD, ARANGO_USERNAME, ARANGO_COLLECTION, ARANGO_URL
 
 
 def main():
     assert ES_INDEX
     assert ES_HOST
+    assert ARANGO_URL
     assert ARANGO_ROOT_PASSWORD
     assert ARANGO_COLLECTION
     assert ARANGO_USERNAME
 
     es = Elasticsearch([ES_HOST])
-    conn = Connection(username=ARANGO_USERNAME, password=ARANGO_ROOT_PASSWORD)
+    conn = Connection(arangoURL=ARANGO_URL, username=ARANGO_USERNAME, password=ARANGO_ROOT_PASSWORD)
 
     if ES_INDEX not in conn.databases:
         conn.createDatabase(name=ES_INDEX)
