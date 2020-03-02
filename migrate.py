@@ -25,7 +25,11 @@ def main():
         db.createCollection(name=ARANGO_COLLECTION)
 
     # Build queries
-    existed_patents = db.AQLQuery(f"FOR doc IN {ARANGO_COLLECTION} RETURN doc._file").response['result']
+    existed_patents_total = db.AQLQuery("RETURN LENGTH(Patents)").response['result'][0] or 1000
+    existed_patents = db.AQLQuery(
+        f"FOR doc IN {ARANGO_COLLECTION} RETURN doc._file",
+        batchSize=existed_patents_total
+    ).response['result']
     es_query_exclude_existed = {"query": {"bool": {"must_not": [{"ids": {"values": existed_patents}}]}}}
     aql_query_insert = f"INSERT @doc INTO {ARANGO_COLLECTION} LET newDoc = NEW RETURN newDoc"
 
