@@ -45,6 +45,7 @@ def main():
             db.AQLQuery(aql_query_insert, bindVars={'doc': hit})
             logging.info(f"Added: {hit['_file']}")
 
+        # Scroll next batch
         patents = es.scroll(scroll_id=scroll_id, scroll='1m')
         scroll_id = patents['_scroll_id'],
         scroll_size = len(patents['hits']['hits'])
