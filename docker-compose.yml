@@ -23,9 +23,6 @@ services:
   migrate:
     build: .
     env_file: .env
-    depends_on:
-      - arangodb
-      - es
 volumes:
   arangodb_data:
   esdata:
