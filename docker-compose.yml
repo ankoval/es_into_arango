@@ -4,7 +4,7 @@ services:
     image: arangodb:latest
     env_file: .env
     ports:
-      - 8529:8529
+      - 127.0.0.1:8529:8529
     volumes:
       - arangodb_data:/var/lib/arangodb
   es:
@@ -19,10 +19,13 @@ services:
     volumes:
       - esdata:/usr/share/elasticsearch/data
     ports:
-      - 9200:9200
+      - 127.0.0.1:9200:9200
   migrate:
     build: .
     env_file: .env
+    depends_on:
+      - arangodb
+      - es
 volumes:
   arangodb_data:
   esdata:

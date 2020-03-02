@@ -13,25 +13,37 @@ def main():
     assert ARANGO_COLLECTION
     assert ARANGO_USERNAME
 
+    # ES connection
     es = Elasticsearch([ES_HOST])
-    conn = Connection(arangoURL=ARANGO_URL, username=ARANGO_USERNAME, password=ARANGO_ROOT_PASSWORD)
 
+    # Arango connection
+    conn = Connection(arangoURL=ARANGO_URL, username=ARANGO_USERNAME, password=ARANGO_ROOT_PASSWORD)
     if ES_INDEX not in conn.databases:
         conn.createDatabase(name=ES_INDEX)
     db = conn[ES_INDEX]
-
     if not db.hasCollection(ARANGO_COLLECTION):
         db.createCollection(name=ARANGO_COLLECTION)
 
+    # Build queries
     existed_patents = db.AQLQuery(f"FOR doc IN {ARANGO_COLLECTION} RETURN doc._file").response['result']
     es_query_exclude_existed = {"query": {"bool": {"must_not": [{"ids": {"values": existed_patents}}]}}}
-    res = es.search(index=ES_INDEX, body=es_query_exclude_existed)
-
     aql_query_insert = f"INSERT @doc INTO {ARANGO_COLLECTION} LET newDoc = NEW RETURN newDoc"
-    for hit in res['hits']['hits']:
-        hit['_file'] = hit['_id']
-        db.AQLQuery(aql_query_insert, bindVars={'doc': hit})
-        logging.info(f"Added: {hit['_file']}")
+
+    # Handle ES pagination
+    patents = es.search(index=ES_INDEX, body=es_query_exclude_existed, scroll='1m', size=100)
+    scroll_id = patents['_scroll_id']
+    scroll_size = len(patents['hits']['hits'])
+    while scroll_size > 0:
+
+        # Add patents to Arango
+        for hit in patents['hits']['hits']:
+            hit['_file'] = hit['_id']
+            db.AQLQuery(aql_query_insert, bindVars={'doc': hit})
+            logging.info(f"Added: {hit['_file']}")
+
+        patents = es.scroll(scroll_id=scroll_id, scroll='1m')
+        scroll_id = patents['_scroll_id'],
+        scroll_size = len(patents['hits']['hits'])
 
 
 if __name__ == '__main__':
